@@ -11,6 +11,53 @@ until 1.0 lands.
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-04-27
+
+### API stability candidate (1.0 prep)
+
+v0.3 is the **API stability candidate** for 1.0. Feature coverage
+closed in v0.2 — `walk` for one-shot enumeration, `watch` for
+continuous filesystem-event monitoring, both with shared
+exclude-glob + size-cap filters. v0.3 freezes the public surface
+ahead of 1.0 and locks in SemVer commitments. v0.3.x can iterate
+on examples, docs polish, and niche additions without changing
+the public API shape.
+
+### Added
+
+- **Stability section in `lib.rs` module docs** explicitly
+  enumerates what's covered by the API freeze (Scanner dispatch,
+  ScanConfig field set, ScanEntry / ScanEvent / Error
+  field+variant sets, the `Iterator<Item = Result<ScanEntry>>`
+  shape from `walk`, the `Iterator<Item = ScanEvent>` lifecycle
+  from `scan`, feature flag names) and what stays implementation
+  detail (private layout of Scanner / ScanWalkIter / ScanStream,
+  threading model details, platform-specific event-translation
+  rules).
+
+### Changed
+
+- **No API-shape changes.** v0.3.0 is intentionally a
+  documentation-only release. `#[non_exhaustive]` was already in
+  place on every public struct + enum (added incrementally
+  v0.1 → v0.2); `#[must_use]` was already on every constructor +
+  builder + accessor. The audit confirmed no gaps.
+
+### Migration
+
+For most callers: bump the dep, rebuild, ship. Zero code changes
+required.
+
+### Notes
+
+- v0.3.x will iterate on **more examples** (a recursive-watch
+  example with debouncing, a custom-filter example), **cookbook**-
+  style docs, and any **niche backend additions** that don't
+  change the public surface.
+- 1.0 will be cut once the API is exercised by at least one
+  downstream production user. Sery Link is the canonical
+  integration target.
+
 ## [0.2.2] — 2026-04-27
 
 ### Added
@@ -149,7 +196,8 @@ until 1.0 lands.
   `scankit` has no FFI surface — every backend is pure Rust. Any
   `unsafe` block here is a bug, not a justified opt-in.
 
-[Unreleased]: https://github.com/seryai/scankit/compare/v0.2.2...HEAD
+[Unreleased]: https://github.com/seryai/scankit/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/seryai/scankit/compare/v0.2.2...v0.3.0
 [0.2.2]: https://github.com/seryai/scankit/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/seryai/scankit/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/seryai/scankit/compare/v0.1.0...v0.2.0

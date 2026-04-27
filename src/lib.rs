@@ -52,6 +52,45 @@
 //! glue, and every project gets it slightly wrong. `scankit` ships
 //! it once, with the edge cases (symlink loops, permission denials,
 //! mid-walk concurrent deletes) handled in one place.
+//!
+//! ## Stability commitment (v0.3+)
+//!
+//! v0.3 marks the **API stability candidate** for 1.0. The
+//! following surface is committed to and will only change with a
+//! major version bump:
+//!
+//! - [`Scanner`] construction + dispatch — `new`, `walk`, `scan`
+//!   (under the `watch` feature), `config`. Future trait methods
+//!   land with default impls so existing callers don't break.
+//! - [`ScanConfig`] field set + the builder methods
+//!   (`max_file_size_bytes`, `follow_symlinks`, `add_exclude`).
+//!   Marked `#[non_exhaustive]` so we can add fields without
+//!   major bumps.
+//! - [`ScanEntry`], [`ScanEvent`], [`Error`] structs + enums.
+//!   All `#[non_exhaustive]` for forward-compat — pattern-matchers
+//!   must include a wildcard arm.
+//! - The lazy `Iterator<Item = Result<ScanEntry>>` shape returned
+//!   by [`Scanner::walk`].
+//! - The `Iterator<Item = ScanEvent>` shape returned by
+//!   [`Scanner::scan`] under the `watch` feature, including the
+//!   `Initial` → `InitialComplete` → live-events lifecycle.
+//! - Feature flag names: `walk`, `watch`.
+//!
+//! The following are **implementation details** and may change in
+//! minor versions:
+//!
+//! - The internal layout of [`Scanner`] / [`ScanWalkIter`] /
+//!   [`ScanStream`] (private fields, helper methods).
+//! - The exact threading model of [`Scanner::scan`] (currently one
+//!   short-lived initial-walk thread + the `notify` watcher's own
+//!   threads; could change as `notify` evolves).
+//! - The exact set of filesystem-event types translated to
+//!   [`ScanEvent`] variants (notify itself is platform-specific
+//!   and we follow upstream).
+//!
+//! 1.0 will be cut once the API is exercised by at least one
+//! downstream production user. [Sery Link](https://sery.ai) is
+//! the canonical integration target.
 
 #![doc(html_root_url = "https://docs.rs/scankit")]
 #![cfg_attr(docsrs, feature(doc_cfg))]
