@@ -99,9 +99,12 @@ Runnable example programs live in [`examples/`](examples/):
   ```bash
   cargo run --example walk -- /Users/me/Documents
   ```
-
-A `watch.rs` example exercising the v0.2 continuous-watch surface
-lands in a follow-up release.
+- [`watch.rs`](examples/watch.rs) — continuous scan: initial
+  walk + live filesystem events. Requires the `watch` feature.
+  Run with:
+  ```bash
+  cargo run --example watch --features watch -- /Users/me/Documents
+  ```
 
 ## License
 
