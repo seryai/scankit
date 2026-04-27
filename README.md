@@ -89,6 +89,20 @@ for result in scanner.walk(Path::new("/Users/me/Documents")) {
 | `watch` | Continuous filesystem-event monitoring on top of an initial walk | ~500 KB compiled |
 | `default` | `walk` | ~250 KB compiled |
 
+## Examples
+
+Runnable example programs live in [`examples/`](examples/):
+
+- [`walk.rs`](examples/walk.rs) — walk a directory tree with
+  conventional excludes (`.git`, `node_modules`, `.DS_Store`,
+  build outputs) and a 50 MB size cap. Run with:
+  ```bash
+  cargo run --example walk -- /Users/me/Documents
+  ```
+
+A `watch.rs` example exercising the v0.2 continuous-watch surface
+lands in a follow-up release.
+
 ## License
 
 Dual-licensed under [MIT](LICENSE-MIT) OR [Apache 2.0](LICENSE-APACHE)

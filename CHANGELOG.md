@@ -11,6 +11,29 @@ until 1.0 lands.
 
 ## [Unreleased]
 
+## [0.2.1] — 2026-04-27
+
+### Added
+
+- **`examples/walk.rs`** — runnable CLI that walks a directory
+  tree with conventional excludes (`.git`, `node_modules`,
+  `.DS_Store`, build outputs) and a 50 MB size cap, printing one
+  line per file. Run with:
+  ```bash
+  cargo run --example walk -- /Users/me/Documents
+  ```
+- README "Examples" section pointing at the new `examples/`
+  directory.
+
+### Notes
+
+- v0.2.1 is the first of the planned "examples + cookbook"
+  iteration. A `watch.rs` example exercising the v0.2 continuous-
+  watch surface lands in a follow-up release.
+- Examples are deliberately dep-light: no `clap` for arg parsing,
+  no `serde` for output. Reading the surface should not require
+  wading through unrelated crate ceremony.
+
 ## [0.2.0] — 2026-04-27
 
 ### Added
@@ -109,6 +132,7 @@ until 1.0 lands.
   `scankit` has no FFI surface — every backend is pure Rust. Any
   `unsafe` block here is a bug, not a justified opt-in.
 
-[Unreleased]: https://github.com/seryai/scankit/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/seryai/scankit/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/seryai/scankit/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/seryai/scankit/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/seryai/scankit/releases/tag/v0.1.0
