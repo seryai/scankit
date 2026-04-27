@@ -1,6 +1,6 @@
 [package]
 name = "scankit"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 rust-version = "1.85"
 authors = ["scankit contributors"]
@@ -45,6 +45,15 @@ notify   = { version = "8", optional = true }
 
 [dev-dependencies]
 tempfile = "3"
+
+# The watch example uses Scanner::scan + ScanStream, which only
+# exist when the `watch` feature is enabled. Declaring
+# required-features here keeps `cargo build --all-targets` from
+# trying to build the example under the default (walk-only)
+# config and failing with unresolved-import errors.
+[[example]]
+name = "watch"
+required-features = ["watch"]
 
 [lints.rust]
 # `forbid` rather than `deny` — there's no FFI in this crate (unlike

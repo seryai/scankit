@@ -11,6 +11,23 @@ until 1.0 lands.
 
 ## [Unreleased]
 
+## [0.2.2] — 2026-04-27
+
+### Added
+
+- **`examples/watch.rs`** — runnable demo of the v0.2 continuous-
+  watch surface (`Scanner::scan` → `ScanStream`). Prints one line
+  per file during the initial walk, an `=== initial walk complete
+  ===` marker when `InitialComplete` arrives, then live
+  `[created] / [mod] / [deleted]` events as files change.
+  Run with:
+  ```bash
+  cargo run --example watch --features watch -- /Users/me/Documents
+  ```
+- `[[example]] required-features = ["watch"]` in `Cargo.toml` so
+  `cargo build --all-targets` under the default (walk-only)
+  config doesn't try to build the example and fail.
+
 ## [0.2.1] — 2026-04-27
 
 ### Added
@@ -132,7 +149,8 @@ until 1.0 lands.
   `scankit` has no FFI surface — every backend is pure Rust. Any
   `unsafe` block here is a bug, not a justified opt-in.
 
-[Unreleased]: https://github.com/seryai/scankit/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/seryai/scankit/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/seryai/scankit/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/seryai/scankit/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/seryai/scankit/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/seryai/scankit/releases/tag/v0.1.0
