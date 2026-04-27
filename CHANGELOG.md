@@ -11,6 +11,56 @@ until 1.0 lands.
 
 ## [Unreleased]
 
+## [0.2.0] — 2026-04-27
+
+### Added
+
+- **`watch` feature is now real.** v0.1.0 shipped the feature flag
+  as a no-op placeholder so consumers could pin against the
+  eventual shape; v0.2.0 implements it. Pulls in
+  [`notify`](https://crates.io/crates/notify) for the cross-
+  platform event source (`FSEvents` on macOS,
+  `ReadDirectoryChangesW` on Windows, inotify on Linux).
+- **`Scanner::scan(root) -> Result<ScanStream>`** — returns a
+  `ScanStream` that does an initial walk + continuous filesystem-
+  event monitoring, with the same exclude + size-cap filters as
+  `Scanner::walk`. Spawns one short-lived thread for the initial
+  walk; the `notify` watcher manages its own threading.
+- **`ScanStream`** — `Iterator<Item = ScanEvent>`. Blocking
+  `next()` plus a non-blocking `try_next()` for callers that want
+  to poll. Dropping the stream stops the underlying watcher and
+  releases the kernel-side subscription.
+- **`ScanEvent`** enum — `Initial(ScanEntry)`, `InitialComplete`,
+  `Created(ScanEntry)`, `Modified(ScanEntry)`, `Deleted(PathBuf)`.
+  `#[non_exhaustive]` so `Renamed`, `Closed`, and platform-specific
+  kinds can land in v0.3+ without breaking external matches.
+- **`InitialComplete` sentinel** — emitted exactly once, after the
+  last `Initial` event, before the first live filesystem event.
+  Lets UIs flip from "scanning…" to "watching" cleanly.
+- **`Error::Watch`** variant — surfaces `notify` initialisation
+  failures (root doesn't exist, permission denial, kernel inotify
+  budget exhausted on Linux).
+- 4 new tests covering: initial walk emits existing files + marker,
+  live `Created` events arrive after `InitialComplete`, dropping
+  the stream stops the watcher cleanly, excludes apply to both
+  initial and live events.
+
+### Notes
+
+- **Renames** are surfaced as a `Deleted(old_path)` followed by a
+  `Created(new_entry)` rather than a single `Renamed` variant —
+  `notify`'s rename event shape varies by platform and consolidating
+  is left for v0.3.
+- **Filtering for `Deleted` events.** Excludes are checked, but the
+  size cap can't be (the file is gone). If a caller cared about
+  the path's excluded-ness they would have skipped it on the
+  corresponding `Initial` / `Created` event anyway.
+- **Threading model.** The initial-walk thread and `notify`'s
+  internal threads both push into one `mpsc::channel`, so events
+  for files modified during the initial walk can interleave with
+  `Initial` events. Callers that need strict ordering should buffer
+  until `InitialComplete` before treating subsequent events as live.
+
 ## [0.1.0] — 2026-04-27
 
 ### Added
@@ -59,5 +109,6 @@ until 1.0 lands.
   `scankit` has no FFI surface — every backend is pure Rust. Any
   `unsafe` block here is a bug, not a justified opt-in.
 
-[Unreleased]: https://github.com/seryai/scankit/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/seryai/scankit/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/seryai/scankit/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/seryai/scankit/releases/tag/v0.1.0

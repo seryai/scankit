@@ -4,12 +4,13 @@
 Iced / native desktop apps reach for when they need to enumerate
 user files.
 
-> **Status:** v0.1 — one-shot directory walking with exclude-glob
-> and size-cap filters, backed by `walkdir` + `globset`. Continuous
-> watch (filesystem-event monitoring on top of an initial walk)
-> behind the `watch` feature lands in v0.2 — the feature flag exists
-> in v0.1 as a no-op so consumers can pin against the eventual
-> shape.
+> **Status:** v0.2 — one-shot directory walking + continuous
+> filesystem-event monitoring. The `walk` feature (default) gives
+> you `Scanner::walk(root) -> impl Iterator<Item = ScanEntry>`;
+> the `watch` feature (opt-in) adds `Scanner::scan(root) ->
+> ScanStream` for an initial walk followed by live Created /
+> Modified / Deleted events, with the same exclude + size-cap
+> filters applied throughout.
 
 ## Why this exists
 
@@ -85,7 +86,7 @@ for result in scanner.walk(Path::new("/Users/me/Documents")) {
 | Feature | Adds | Approx. cost |
 |---|---|---|
 | `walk` (default) | One-shot directory walking | ~250 KB compiled |
-| `watch` | (v0.2+) Continuous filesystem-event monitoring on top of an initial walk | ~500 KB compiled |
+| `watch` | Continuous filesystem-event monitoring on top of an initial walk | ~500 KB compiled |
 | `default` | `walk` | ~250 KB compiled |
 
 ## License
@@ -97,13 +98,16 @@ at your option. SPDX: `MIT OR Apache-2.0`.
 
 - [x] **v0.1 — one-shot walking.** `Scanner` + `ScanConfig` +
       `ScanEntry`, exclude-glob and size-cap filters, symlink
-      handling, lazy iterator. The `watch` feature exists as a
-      no-op placeholder so the shape is stable.
-- [ ] v0.2 — `watch` feature: continuous filesystem-event
-      monitoring on top of an initial walk, backed by `notify`.
-- [ ] v0.3 — extension-based dispatch helper (provide a
-      `HashMap<&str, Box<dyn Handler>>`, get back a stream of
-      handler-processed outputs).
+      handling, lazy iterator.
+- [x] **v0.2 — `watch` feature.** `Scanner::scan` →
+      `ScanStream` (an `Iterator<Item = ScanEvent>`). Initial walk
+      + continuous filesystem-event monitoring via `notify`, same
+      exclude + size-cap filters apply to both. `InitialComplete`
+      sentinel marks the boundary between the initial enumeration
+      and live events.
+- [ ] v0.3 — `Renamed` event variant (consolidate `Deleted` +
+      `Created` pairs from notify's platform-specific rename
+      shapes); extension-based dispatch helper.
 - [ ] v0.4 — audit pass + first stable trait release (1.0
       candidate).
 

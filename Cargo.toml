@@ -1,6 +1,6 @@
 [package]
 name = "scankit"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 rust-version = "1.85"
 authors = ["scankit contributors"]
@@ -28,8 +28,10 @@ default = ["walk"]
 walk = ["dep:walkdir", "dep:globset"]
 
 # Watching: continuous filesystem-change events on top of an initial
-# walk. Backed by `notify`. Not yet implemented — placeholder feature
-# so the shape ships with v0.1.0 and consumers can pin against it.
+# walk. Backed by `notify`. Pulls in `Scanner::scan` → `ScanStream`
+# (an `Iterator<Item = ScanEvent>` carrying Initial / Created /
+# Modified / Deleted events with the same exclude + size-cap filters
+# as `Scanner::walk`).
 watch = ["walk", "dep:notify"]
 
 [dependencies]

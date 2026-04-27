@@ -67,6 +67,11 @@ mod walk;
 #[cfg(feature = "walk")]
 pub use walk::{ScanWalkIter, Scanner};
 
+#[cfg(feature = "watch")]
+mod watch;
+#[cfg(feature = "watch")]
+pub use watch::{ScanEvent, ScanStream};
+
 // ---------------------------------------------------------------------------
 // ScanEntry — the unit of output
 // ---------------------------------------------------------------------------
