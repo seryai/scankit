@@ -4,13 +4,14 @@
 Iced / native desktop apps reach for when they need to enumerate
 user files.
 
-> **Status:** v0.2 — one-shot directory walking + continuous
-> filesystem-event monitoring. The `walk` feature (default) gives
-> you `Scanner::walk(root) -> impl Iterator<Item = ScanEntry>`;
-> the `watch` feature (opt-in) adds `Scanner::scan(root) ->
-> ScanStream` for an initial walk followed by live Created /
-> Modified / Deleted events, with the same exclude + size-cap
-> filters applied throughout.
+> **Status:** v0.3 — **API stability candidate for 1.0**. Feature
+> coverage closed in v0.2 (one-shot walking via the `walk` feature,
+> continuous filesystem-event monitoring via the `watch` feature,
+> both with shared exclude-glob + size-cap filters). v0.3 freezes
+> the public surface — see the [stability section](#stability-v03)
+> below for what's locked in. v0.3.x will iterate on examples +
+> cookbook docs. 1.0 ships once the API is exercised by at least
+> one downstream production user.
 
 ## Why this exists
 
@@ -106,6 +107,40 @@ Runnable example programs live in [`examples/`](examples/):
   cargo run --example watch --features watch -- /Users/me/Documents
   ```
 
+## Stability (v0.3+) {#stability-v03}
+
+v0.3 is the **API stability candidate** for 1.0. The following
+surface is committed to and will only change with a major version
+bump:
+
+- `Scanner` construction + dispatch — `new`, `walk`, `scan` (under
+  the `watch` feature), `config`. Future trait methods land with
+  default impls so existing callers don't break.
+- `ScanConfig` field set + the builder methods
+  (`max_file_size_bytes`, `follow_symlinks`, `add_exclude`).
+- `ScanEntry`, `ScanEvent`, `Error` field/variant sets.
+  All `#[non_exhaustive]` so we can grow them without major
+  bumps. **Pattern-matchers must include a wildcard arm.**
+- The lazy `Iterator<Item = Result<ScanEntry>>` shape from
+  `Scanner::walk`.
+- The `Iterator<Item = ScanEvent>` lifecycle from `Scanner::scan`
+  (`Initial` → `InitialComplete` → live `Created` / `Modified` /
+  `Deleted`).
+- Feature flag names: `walk`, `watch`.
+
+The following are **implementation details** and may change in
+minor versions:
+
+- Internal layout of `Scanner` / `ScanWalkIter` / `ScanStream`
+  (private fields, helper methods).
+- Threading model of `Scanner::scan` (currently one short-lived
+  initial-walk thread + the `notify` watcher's own threads).
+- Platform-specific event-translation rules (notify itself is
+  platform-specific; we follow upstream).
+
+1.0 will be cut once the API is exercised by at least one
+downstream production user.
+
 ## License
 
 Dual-licensed under [MIT](LICENSE-MIT) OR [Apache 2.0](LICENSE-APACHE)
@@ -122,7 +157,13 @@ at your option. SPDX: `MIT OR Apache-2.0`.
       exclude + size-cap filters apply to both. `InitialComplete`
       sentinel marks the boundary between the initial enumeration
       and live events.
-- [ ] v0.3 — `Renamed` event variant (consolidate `Deleted` +
+- [x] **v0.3 — API stability candidate.** Stability commitments
+      doc in `lib.rs` + README. `#[non_exhaustive]` already on
+      every public struct + enum (added incrementally v0.1 →
+      v0.2); `#[must_use]` already on every constructor +
+      builder + accessor. Documentation-only release — no
+      API-shape changes.
+- [ ] v0.4 — `Renamed` event variant (consolidate `Deleted` +
       `Created` pairs from notify's platform-specific rename
       shapes); extension-based dispatch helper.
 - [ ] v0.4 — audit pass + first stable trait release (1.0
