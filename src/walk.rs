@@ -67,6 +67,16 @@ impl Scanner {
     pub fn config(&self) -> &ScanConfig {
         &self.config
     }
+
+    /// Internal accessor for the compiled `GlobSet`. Used by the
+    /// watch module to clone the set into the notify callback.
+    /// Not public because the build-once cached set is an
+    /// implementation detail — external callers configure
+    /// excludes via [`ScanConfig::add_exclude`].
+    #[cfg(feature = "watch")]
+    pub(crate) fn excludes_for_watch(&self) -> &GlobSet {
+        &self.excludes
+    }
 }
 
 /// Iterator returned by [`Scanner::walk`]. Yields one `Result`

@@ -36,6 +36,15 @@ pub enum Error {
     #[cfg(feature = "walk")]
     #[error("walk error: {0}")]
     Walk(#[from] walkdir::Error),
+
+    /// Filesystem-watcher initialisation failed. Surfaces from
+    /// [`Scanner::scan`](crate::Scanner::scan) when `notify` can't
+    /// register the kernel-side subscription — typical causes:
+    /// the root directory doesn't exist, permission denial, or the
+    /// inotify watch budget is exhausted on Linux.
+    #[cfg(feature = "watch")]
+    #[error("watch error: {0}")]
+    Watch(String),
 }
 
 #[cfg(test)]
