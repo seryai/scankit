@@ -1,0 +1,60 @@
+[package]
+name = "scankit"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.85"
+authors = ["scankit contributors"]
+description = "Walk + watch + filter directory trees. The shared scanner Tauri / Iced / native desktop apps reach for when they need to enumerate user files."
+documentation = "https://docs.rs/scankit"
+homepage = "https://github.com/seryai/scankit"
+repository = "https://github.com/seryai/scankit"
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+keywords = ["walk", "watch", "scanner", "filesystem", "indexer"]
+categories = ["filesystem", "os"]
+exclude = [
+    "/.github",
+    "/tests/fixtures/large/*",
+]
+
+[features]
+# Default = walking only. The `watch` feature pulls in `notify` for
+# continuous filesystem-event monitoring; some apps only ever need a
+# one-shot enumeration and shouldn't pay the dep cost.
+default = ["walk"]
+
+# Walking: enumerate directory trees with exclude-glob + size-cap
+# filters. Backed by `walkdir` + `globset`.
+walk = ["dep:walkdir", "dep:globset"]
+
+# Watching: continuous filesystem-change events on top of an initial
+# walk. Backed by `notify`. Not yet implemented — placeholder feature
+# so the shape ships with v0.1.0 and consumers can pin against it.
+watch = ["walk", "dep:notify"]
+
+[dependencies]
+thiserror = "2"
+
+# Optional backends. Each is gated by the corresponding feature flag
+# above; consumers pay only for the surface they enable.
+walkdir  = { version = "2", optional = true }
+globset  = { version = "0.4", optional = true }
+notify   = { version = "8", optional = true }
+
+[dev-dependencies]
+tempfile = "3"
+
+[lints.rust]
+# `forbid` rather than `deny` — there's no FFI in this crate (unlike
+# mdkit's OCR backends), so any `unsafe` block is a bug to fix at
+# review time rather than to allow with a comment.
+unsafe_code = "forbid"
+missing_docs = "warn"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+# Selectively allow the pedantic lints that fight common idioms.
+module_name_repetitions = "allow"
+must_use_candidate = "allow"
+missing_errors_doc = "allow"

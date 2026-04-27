@@ -1,0 +1,34 @@
+# Rust build artifacts
+/target
+
+# Cargo.lock is excluded — scankit is a library, not a binary. Per
+# the Cargo book: libraries should not commit Cargo.lock because it
+# gets regenerated when downstream packages depend on us. If we ever
+# ship a `scankit-cli` binary, drop the line below and commit the
+# lockfile from that point forward.
+Cargo.lock
+
+# IDE
+/.idea
+/.vscode
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+*.swp
+*.swo
+*~
+
+# Local test fixtures. Anything under tests/fixtures/ is considered
+# developer-local — drop your own hello.png / sample.pdf in here to
+# run the `--ignored` tests, but nothing in this directory ships with
+# the crate or gets committed. Force-add (`git add -f`) if we ever
+# want to commit a tiny canonical fixture.
+/tests/fixtures/
+
+# Coverage / profiling
+/coverage
+*.profraw
